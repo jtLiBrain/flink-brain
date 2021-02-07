@@ -12,7 +12,7 @@ So in the pom.xml file, the Flink dependencies for Java and Scala are both inclu
 
 ## 2. Changes in the "Main" class
 For Java version, in `org.jtLiBrain.flink.WindowWordCount` class, do this change:
-```
+```java
 // replace
 StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
