@@ -10,8 +10,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>flink-wordcount</artifactId>
-    <name>Flink WordCount</name>
+    <artifactId>flink-examples</artifactId>
+    <name>Flink Examples</name>
     <description></description>
     <packaging>jar</packaging>
 
@@ -75,17 +75,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <configuration>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.jtLiBrain.flink.examples.WindowWordCount</mainClass>
-                                </transformer>
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

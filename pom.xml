@@ -9,6 +9,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>wordcount</module>
+        <module>examples</module>
     </modules>
 
     <name>Flink Parent</name>
@@ -21,8 +22,8 @@
 
         <java.version>1.8</java.version>
 
-        <scala.version>2.11.12</scala.version>
-        <scala.binary.version>2.11</scala.binary.version>
+        <scala.version>2.12.14</scala.version>
+        <scala.binary.version>2.12</scala.binary.version>
         <scala.maven.plugin.version>3.2.2</scala.maven.plugin.version>
         <scalastyle.version>1.0.0</scalastyle.version>
         <scala-logging.version>3.9.2</scala-logging.version>
@@ -41,7 +42,7 @@
         <maven.assembly.plugin.version>3.1.1</maven.assembly.plugin.version>
         <maven.shade.plugin.version>3.2.1</maven.shade.plugin.version>
 
-        <flink.version>1.12.0</flink.version>
+        <flink.version>1.13.1</flink.version>
 
         <junit.version>4.12</junit.version>
         <hamcrest.version>1.3</hamcrest.version>

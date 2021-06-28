@@ -1,4 +1,4 @@
-package org.jtLiBrain.flink
+package org.jtLiBrain.flink.examples
 
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows
