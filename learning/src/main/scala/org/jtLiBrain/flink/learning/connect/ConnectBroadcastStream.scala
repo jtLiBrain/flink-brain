@@ -8,7 +8,7 @@ import org.apache.flink.util.Collector
 
 object ConnectBroadcastStream {
   def main(args: Array[String]): Unit = {
-    val env = StreamExecutionEnvironment.getExecutionEnvironment
+    val env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI()
 
     val eventDS = env.socketTextStream("localhost", 8888)
       .map(str => str).setParallelism(3)
