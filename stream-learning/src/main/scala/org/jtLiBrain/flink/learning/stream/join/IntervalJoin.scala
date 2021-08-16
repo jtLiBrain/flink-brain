@@ -1,4 +1,4 @@
-package org.jtLiBrain.flink.learning.join
+package org.jtLiBrain.flink.learning.stream.join
 
 import java.time.Duration
 

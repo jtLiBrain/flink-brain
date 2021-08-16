@@ -1,7 +1,7 @@
-package org.jtLiBrain.flink.learning.connect
+package org.jtLiBrain.flink.learning.stream.connect
 
 import org.apache.flink.api.common.state.MapStateDescriptor
-import org.apache.flink.streaming.api.functions.co.{BroadcastProcessFunction}
+import org.apache.flink.streaming.api.functions.co.BroadcastProcessFunction
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.util.Collector
@@ -27,7 +27,6 @@ object ConnectBroadcastStream {
 
     eventDS.connect(broadcastStream)
       .process(new BroadcastProcessFunction[String, Int, String]{
-
         override def processElement(value: String, ctx: BroadcastProcessFunction[String, Int, String]#ReadOnlyContext, out: Collector[String]): Unit = {
           val iter = ctx.getBroadcastState(ruleStateDescriptor).immutableEntries().iterator()
           if(iter.hasNext) {
@@ -41,7 +40,8 @@ object ConnectBroadcastStream {
         }
 
         override def processBroadcastElement(value: Int, ctx: BroadcastProcessFunction[String, Int, String]#Context, out: Collector[String]): Unit = {
-          ctx.getBroadcastState(ruleStateDescriptor).put("HARD_CODE_KEY", value)
+          println("processBroadcastElement():" +value)
+//          ctx.getBroadcastState(ruleStateDescriptor).put("HARD_CODE_KEY", value)
 //          ctx.getBroadcastState(ruleStateDescriptor).put(value+"", value)
         }
       }).print()
