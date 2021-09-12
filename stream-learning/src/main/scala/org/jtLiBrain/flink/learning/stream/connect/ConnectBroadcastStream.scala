@@ -10,41 +10,72 @@ object ConnectBroadcastStream {
   def main(args: Array[String]): Unit = {
     val env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI()
 
-    val eventDS = env.socketTextStream("localhost", 8888)
-      .map(str => str).setParallelism(3)
+  // (pid, 时间戳)
+  val orderStream = env.socketTextStream("localhost", 8888)
+    .map{ str =>
+      val array = str.split(",")
+      (array(0).toInt, array(1).toLong)
+    }
 
+  // (pid, pname)
+  val dimStream = env.socketTextStream("localhost", 9999)
+    .map{ str =>
+      val array = str.split(",")
+      (array(0).toInt, array(1))
+    }
 
-    val confDS = env.socketTextStream("localhost", 9999)
-      .map(str => str.toInt)
+  // 1 定义广播状态描述符
+  val dimStateDesc = new MapStateDescriptor[Int, String]("ProductBroadcastState",
+                                                          classOf[Int],
+                                                          classOf[String]);
 
+  // 2 广播维度数据
+  val dimBroadcastStream = dimStream.broadcast(dimStateDesc)
 
-    val ruleStateDescriptor = new MapStateDescriptor[String, Int](
-      "RulesBroadcastState",
-      classOf[String],
-      classOf[Int]);
+  // 3 将订单流与维度广播流进行连接
+  val resultStream = orderStream.connect(dimBroadcastStream)
+    .process(new BroadcastProcessFunction[(Int, Long), (Int, String), (Int, String, Long)] {
+      // 3.1 处理广播流数据
+      override def processBroadcastElement(value: (Int, String),
+                                           ctx: BroadcastProcessFunction[(Int, Long), (Int, String), (Int, String, Long)]#Context,
+                                           out: Collector[(Int, String, Long)]): Unit = {
+        val dimState = ctx.getBroadcastState(dimStateDesc)
 
-    val broadcastStream = confDS.broadcast(ruleStateDescriptor)
-
-    eventDS.connect(broadcastStream)
-      .process(new BroadcastProcessFunction[String, Int, String]{
-        override def processElement(value: String, ctx: BroadcastProcessFunction[String, Int, String]#ReadOnlyContext, out: Collector[String]): Unit = {
-          val iter = ctx.getBroadcastState(ruleStateDescriptor).immutableEntries().iterator()
-          if(iter.hasNext) {
-            while (iter.hasNext) {
-              val conf = iter.next()
-              out.collect(s"$value for state[key=${conf.getKey}, value=${conf.getValue}]")
-            }
-          } else {
-            out.collect(s"$value for state[key=N/A, value=N/A}]")
+        var str = "processBroadcastElement():\n"
+        val iter = ctx.getBroadcastState(dimStateDesc).immutableEntries().iterator()
+        var has = false
+        str += "\tExisting Broadcast State:\n"
+        if (iter.hasNext) {
+          has = true
+          while (iter.hasNext) {
+            val conf = iter.next()
+            str += s"\t\tstate(pid=${conf.getKey}, pname=${conf.getValue})\n"
           }
         }
 
-        override def processBroadcastElement(value: Int, ctx: BroadcastProcessFunction[String, Int, String]#Context, out: Collector[String]): Unit = {
-          println("processBroadcastElement():" +value)
-//          ctx.getBroadcastState(ruleStateDescriptor).put("HARD_CODE_KEY", value)
-//          ctx.getBroadcastState(ruleStateDescriptor).put(value+"", value)
+        if (!has) {
+          str += "\t\t(N/A)\n"
         }
-      }).print()
+
+        str += s"\tNew value: $value is coming.\n\n"
+        println(str)
+        dimState.put(value._1, value._2)
+      }
+
+      // 3.2 处理非广播流数据
+      override def processElement(value: (Int, Long),
+                                  ctx: BroadcastProcessFunction[(Int, Long), (Int, String), (Int, String, Long)]#ReadOnlyContext,
+                                  out: Collector[(Int, String, Long)]): Unit = {
+        val dimState = ctx.getBroadcastState(dimStateDesc)
+        if(dimState.contains(value._1)) {
+          out.collect((value._1, dimState.get(value._1), value._2))
+        } else {
+          out.collect((value._1, "N/A", value._2))
+        }
+      }
+    })
+
+    resultStream.print()
 
     env.execute()
 
