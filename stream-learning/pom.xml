@@ -10,8 +10,9 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>flink-wordcount</artifactId>
-    <name>Flink WordCount</name>
+    <artifactId>stream-learning</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <name>Flink Stream Learning</name>
     <description></description>
     <packaging>jar</packaging>
 
@@ -19,6 +20,12 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.jtLiBrain.flink</groupId>
+            <artifactId>common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- scala -->
         <dependency>
             <groupId>org.scala-lang</groupId>
@@ -57,11 +64,30 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-scala_${scala.binary.version}</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-cep-scala_2.11</artifactId>
+        </dependency>
 
         <!-- Flink for both Java and Scala -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-clients_${scala.binary.version}</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-kafka_${scala.binary.version}</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-runtime-web_${scala.binary.version}</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-csv</artifactId>
         </dependency>
     </dependencies>
 
@@ -75,17 +101,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <configuration>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.jtLiBrain.flink.examples.WindowWordCount</mainClass>
-                                </transformer>
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
